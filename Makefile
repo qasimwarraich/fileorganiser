@@ -10,3 +10,7 @@ dummy:
 
 clean:
 	./scripts/clean.sh
+
+downloads:
+	./scripts/downloads.sh
+
