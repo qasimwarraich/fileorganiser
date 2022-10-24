@@ -30,7 +30,7 @@ func loadFiles(path string) []fs.FileInfo {
 
 func createDatedDir(path string, file fs.FileInfo) {
 	dateStamp := formatDateString(file.ModTime())
-	err := os.MkdirAll(formatDirName(path, dateStamp), 0o755)
+	err := os.MkdirAll(filepath.Join(path, dateStamp), 0o755)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,21 +39,19 @@ func createDatedDir(path string, file fs.FileInfo) {
 func moveFiles(path string, files []fs.FileInfo) {
 	for _, file := range files {
 		if !file.IsDir() {
-			proposedPath := formatDateString(file.ModTime())
-			proposedPath = formatDirName(proposedPath, file.Name())
+			filePath := filepath.Join(path, file.Name())
+
+			dateStamp := formatDateString(file.ModTime())
+			proposedPath := filepath.Join(path, dateStamp, file.Name())
 
 			createDatedDir(path, file)
 
-			err := os.Rename(formatDirName(path, file.Name()), formatDirName(path, proposedPath))
+			err := os.Rename(filePath, proposedPath)
 			if err != nil {
 				log.Println(err)
 			}
 		}
 	}
-}
-
-func formatDirName(parent string, child string) string {
-	return filepath.Join(parent, child)
 }
 
 func formatDateString(modtime time.Time) string {
