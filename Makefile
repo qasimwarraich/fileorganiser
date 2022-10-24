@@ -2,8 +2,8 @@ go:
 	go run main.go
 
 test:
-	./scripts/test.sh
 	./scripts/clean.sh
+	./scripts/test.sh
 
 dummy:
 	./scripts/test.sh

@@ -5,54 +5,46 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 func main() {
 	dir, _ := os.Getwd()
-	files := loadFiles(dir)
-	datesmap := createDateMap(files)
-	createDatedDirs(dir, datesmap)
-	moveFilesByDate(dir, files)
+	path, err := filepath.Abs(dir)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	files := loadFiles(path)
+	moveFiles(path, files)
 }
 
-func loadFiles(dir string) []fs.FileInfo {
-	files, err := ioutil.ReadDir(dir)
+func loadFiles(path string) []fs.FileInfo {
+	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return files
 }
 
-func createDateMap(files []fs.FileInfo) map[time.Time]int {
-	datemap := make(map[time.Time]int)
-
-	for _, file := range files {
-		datemap[file.ModTime()] = datemap[file.ModTime()] + 1
-	}
-	return datemap
-}
-
-func createDatedDirs(dir string, datesmap map[time.Time]int) {
-	for key := range datesmap {
-		date := formatDateString(key)
-
-		_, err := os.Stat(formatDirName(dir, date))
-		if err != nil {
-			if os.IsNotExist(err) {
-				os.Mkdir(formatDirName(dir, date), 0o755)
-			}
-		}
+func createDatedDir(path string, file fs.FileInfo) {
+	dateStamp := formatDateString(file.ModTime())
+	err := os.MkdirAll(formatDirName(path, dateStamp), 0o755)
+	if err != nil {
+		log.Panic(err)
 	}
 }
 
-func moveFilesByDate(dir string, files []fs.FileInfo) {
+func moveFiles(path string, files []fs.FileInfo) {
 	for _, file := range files {
 		if !file.IsDir() {
 			proposedPath := formatDateString(file.ModTime())
 			proposedPath = formatDirName(proposedPath, file.Name())
 
-			err := os.Rename(formatDirName(dir, file.Name()), formatDirName(dir, proposedPath))
+			createDatedDir(path, file)
+
+			err := os.Rename(formatDirName(path, file.Name()), formatDirName(path, proposedPath))
 			if err != nil {
 				log.Println(err)
 			}
@@ -61,7 +53,7 @@ func moveFilesByDate(dir string, files []fs.FileInfo) {
 }
 
 func formatDirName(parent string, child string) string {
-	return parent + "/" + child
+	return filepath.Join(parent, child)
 }
 
 func formatDateString(modtime time.Time) string {
