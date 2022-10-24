@@ -24,5 +24,5 @@ fn format_date(timestamp: SystemTime) -> Result<String, io::Error> {
     let datetime: DateTime<Local> = timestamp.into();
     let datetime = format!("{}", datetime.format("%Y-%m-%d"));
 
-    Ok(datetime)
+    return Ok(datetime);
 }
