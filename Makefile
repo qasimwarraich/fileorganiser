@@ -1,9 +1,11 @@
-go:
-	go run main.go
-
 test:
 	./scripts/clean.sh
 	./scripts/test.sh
+
+tests:
+	./scripts/clean.sh
+	./scripts/test.sh
+	./scripts/downloads.sh
 
 dummy:
 	./scripts/test.sh
