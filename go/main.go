@@ -13,7 +13,7 @@ func main() {
 	dir, _ := os.Getwd()
 	path, err := filepath.Abs(dir)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
 	files := loadFiles(path)
@@ -32,7 +32,7 @@ func createDatedDir(path string, file fs.FileInfo) {
 	dateStamp := formatDateString(file.ModTime())
 	err := os.MkdirAll(formatDirName(path, dateStamp), 0o755)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 }
 
