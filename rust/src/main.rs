@@ -6,23 +6,28 @@ fn main() {
     read_files(&path).expect("You supplied an invalid path");
 }
 
-fn read_files(path: &String) -> Result<String, io::Error> {
-    let mut res = String::new();
+fn read_files(path: &String) -> Result<(), io::Error> {
+    let dir_path = fs::canonicalize(path)?;
 
     for file in fs::read_dir(path)? {
-        let time = file?.metadata()?.accessed();
+        let file = file?;
+        let file_path = dir_path.join(file.file_name());
 
-        let datetime = format_date(time?);
-        res = datetime?;
-        println!("Time: {:?}", res);
+        let metadata = file.metadata();
+        let datetime = format_date(metadata?.accessed()?)?;
+
+        if file.metadata()?.is_dir() {
+            continue;
+        } else {
+            fs::create_dir_all(dir_path.join(&datetime))?;
+            fs::rename(&file_path, &dir_path.join(datetime).join(file.file_name()))?;
+        }
     }
-
-    return Ok(res);
+    return Ok(());
 }
 
 fn format_date(timestamp: SystemTime) -> Result<String, io::Error> {
     let datetime: DateTime<Local> = timestamp.into();
     let datetime = format!("{}", datetime.format("%Y-%m-%d"));
-
     return Ok(datetime);
 }
