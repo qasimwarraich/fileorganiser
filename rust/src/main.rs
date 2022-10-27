@@ -13,14 +13,14 @@ fn read_files(path: &String) -> Result<(), io::Error> {
         let file = file?;
         let file_path = dir_path.join(file.file_name());
 
-        let metadata = file.metadata();
-        let datetime = format_date(metadata?.accessed()?)?;
+        let metadata = file.metadata()?;
+        let datetime = format_date(metadata.accessed()?)?;
 
         if file.metadata()?.is_dir() {
             continue;
         } else {
             fs::create_dir_all(dir_path.join(&datetime))?;
-            fs::rename(&file_path, &dir_path.join(datetime).join(file.file_name()))?;
+            fs::rename(&file_path, &dir_path.join(&datetime).join(file.file_name()))?;
         }
     }
     return Ok(());
