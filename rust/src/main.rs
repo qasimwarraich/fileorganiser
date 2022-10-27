@@ -3,10 +3,10 @@ use std::{fs, io, time::SystemTime};
 
 fn main() {
     let path = String::from("../test_dir");
-    read_files(&path).expect("You supplied an invalid path");
+    organise_files(&path).expect("You supplied an invalid path");
 }
 
-fn read_files(path: &String) -> Result<(), io::Error> {
+fn organise_files(path: &String) -> Result<(), io::Error> {
     let dir_path = fs::canonicalize(path)?;
 
     for file in fs::read_dir(path)? {
