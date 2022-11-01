@@ -14,11 +14,9 @@ fn organise_files(path: &String) -> Result<(), io::Error> {
         let file_path = dir_path.join(file.file_name());
 
         let metadata = file.metadata()?;
-        let datetime = format_date(metadata.accessed()?)?;
+        let datetime = format_date(metadata.modified()?)?;
 
-        if file.metadata()?.is_dir() {
-            continue;
-        } else {
+        if !metadata.is_dir() {
             fs::create_dir_all(dir_path.join(&datetime))?;
             fs::rename(&file_path, &dir_path.join(&datetime).join(file.file_name()))?;
         }
